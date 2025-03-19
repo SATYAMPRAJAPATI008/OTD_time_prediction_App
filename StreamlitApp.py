@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 import pandas as pd
 import urllib.request
+import xgboost as xgb
 import os
 import requests
 
