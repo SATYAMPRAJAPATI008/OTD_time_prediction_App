@@ -6,7 +6,7 @@ import pandas as pd
 import urllib.request
 import os
 import requests
-MODEL_URL = "https://github.com/Housefly-hub/OTD_Time_Forecasting_App/releases/download/v1.0/voting_model.pkl"
+MODEL_URL = "https://github.com/Housefly-hub/OTD_Time_Forecasting_App/releases/download/v1.0/voting_model1.pkl"
 
 
 # Function to check if the file is correctly downloaded
