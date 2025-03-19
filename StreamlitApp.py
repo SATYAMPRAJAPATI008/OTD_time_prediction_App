@@ -4,17 +4,32 @@ import numpy as np
 from PIL import Image
 import pandas as pd
 import urllib.request
+import os
 
-
-# Google Drive file ID (Replace with your actual file ID)
+# Google Drive File ID
 GDRIVE_FILE_ID = "1DvfGR9pJqobmIolgTYWk7EXS3K3Z7qIS"
 
-# Construct the direct download URL
+# Construct the correct download URL
 MODEL_URL = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
+
+# Function to check if the file is correctly downloaded
+def download_model():
+    try:
+        print("Downloading model...")
+        urllib.request.urlretrieve(MODEL_URL, "voting_model.pkl")
+        print("Download complete.")
+        
+        # Check if the downloaded file is actually a pickle file
+        if os.path.getsize("voting_model.pkl") < 1000:  # If the file is too small, it's likely an error page
+            raise ValueError("Downloaded file is not a valid model. Check the Google Drive link.")
+
+    except Exception as e:
+        print(f"Error downloading model: {e}")
+        raise
 
 @st.cache_resource
 def load_model():
-    urllib.request.urlretrieve(MODEL_URL, "voting_model.pkl")
+    download_model()
     return pickle.load(open("voting_model.pkl", "rb"))
 
 # Load the model
