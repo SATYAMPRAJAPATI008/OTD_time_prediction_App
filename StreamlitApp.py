@@ -6,38 +6,52 @@ import pandas as pd
 import urllib.request
 import os
 import requests
-MODEL_URL = "https://github.com/Housefly-hub/OTD_Time_Forecasting_App/releases/download/v1.0/voting_model1.pkl"
 
+MODEL_RF_SVR_URL = "https://github.com/Housefly-hub/OTD_Time_Forecasting_App/releases/download/v1.0/rf_svr_voting.pkl"
+MODEL_XGB_URL = "https://github.com/Housefly-hub/OTD_Time_Forecasting_App/releases/download/v1.0/xgboost_model.json"
 
+# Set the Streamlit page configuration
+st.set_page_config(page_title="OTD Time Forecasting", page_icon=":truck:", layout="wide")
 # Function to check if the file is correctly downloaded
-def download_model():
+def download_file(url, filename):
+    """Download a file from GitHub Releases."""
     try:
-        print("Downloading model from GitHub Releases...")
-        response = requests.get(MODEL_URL, stream=True)
-        response.raise_for_status()  # Ensure we got a successful response
+        print(f"Downloading {filename} from GitHub Releases...")
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
 
-        with open("voting_model.pkl", "wb") as f:
+        with open(filename, "wb") as f:
             for chunk in response.iter_content(1024 * 1024):  # 1MB chunks
                 f.write(chunk)
 
-        print("Download complete.")
+        print(f"✅ Download complete: {filename}")
 
     except Exception as e:
-        print(f"Error downloading model: {e}")
+        print(f"❌ Error downloading {filename}: {e}")
         raise
 
 
 
 @st.cache_resource
-def load_model():
-    download_model()
-    return pickle.load(open("voting_model.pkl", "rb"))
+def load_models():
+    """Load both the Voting Regressor and XGBoost models."""
+    download_file(MODEL_RF_SVR_URL, "rf_svr_voting.pkl")
+    download_file(MODEL_XGB_URL, "xgboost_model.json")
 
-# Load the model
-voting_model = load_model()
+    # Load XGBoost properly
+    xgb_model = xgb.Booster()
+    xgb_model.load_model("xgboost_model.json")
 
-# Set the Streamlit page configuration
-st.set_page_config(page_title="OTD Time Forecasting", page_icon=":truck:", layout="wide")
+    # Load the Voting Regressor
+    with open("rf_svr_voting.pkl", "rb") as f:
+        voting_model = pickle.load(f)
+
+    return voting_model, xgb_model
+
+# Load models
+voting_model, xgb_model = load_models()
+
+
 
 
 # Function for predicting wait time
