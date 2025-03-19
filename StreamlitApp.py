@@ -6,39 +6,21 @@ import pandas as pd
 import urllib.request
 import os
 import requests
+MODEL_URL = "https://github.com/Housefly-hub/OTD_Time_Forecasting_App/releases/download/v1.0/voting_model.pkl"
 
-# Google Drive File ID
-GDRIVE_FILE_ID = "1DvfGR9pJqobmIolgTYWk7EXS3K3Z7qIS"
-
-# Construct the correct download URL
-MODEL_URL = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
 
 # Function to check if the file is correctly downloaded
-import requests
-
-import requests
-
 def download_model():
     try:
-        print("Downloading model...")
-        session = requests.Session()
-        response = session.get(MODEL_URL, stream=True)
+        print("Downloading model from GitHub Releases...")
+        response = requests.get(MODEL_URL, stream=True)
+        response.raise_for_status()  # Ensure we got a successful response
 
         with open("voting_model.pkl", "wb") as f:
             for chunk in response.iter_content(1024 * 1024):  # 1MB chunks
-                if chunk:
-                    f.write(chunk)
+                f.write(chunk)
 
         print("Download complete.")
-        
-        # Debugging: Read the first few lines of the file to check if it's a valid pickle file
-        with open("voting_model.pkl", "rb") as f:
-            first_bytes = f.read(10)
-            print(f"First bytes of the file: {first_bytes}")
-
-        # If the file starts with '<', it's an HTML error page
-        if first_bytes.startswith(b"<"):
-            raise ValueError("Downloaded file is an HTML error page instead of a model. Check the Google Drive link.")
 
     except Exception as e:
         print(f"Error downloading model: {e}")
