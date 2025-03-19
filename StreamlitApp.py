@@ -16,22 +16,13 @@ MODEL_URL = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
 # Function to check if the file is correctly downloaded
 import requests
 
+import requests
+
 def download_model():
     try:
         print("Downloading model...")
         session = requests.Session()
         response = session.get(MODEL_URL, stream=True)
-        token = None
-
-        # Handle Google Drive virus scan confirmation
-        for key, value in response.cookies.items():
-            if key.startswith("download_warning"):
-                token = value
-                break
-
-        if token:
-            MODEL_URL_with_token = f"{MODEL_URL}&confirm={token}"
-            response = session.get(MODEL_URL_with_token, stream=True)
 
         with open("voting_model.pkl", "wb") as f:
             for chunk in response.iter_content(1024 * 1024):  # 1MB chunks
@@ -40,13 +31,19 @@ def download_model():
 
         print("Download complete.")
         
-        # Verify the file size
-        if os.path.getsize("voting_model.pkl") < 1000:
-            raise ValueError("Downloaded file is not a valid model. Check the Google Drive link.")
+        # Debugging: Read the first few lines of the file to check if it's a valid pickle file
+        with open("voting_model.pkl", "rb") as f:
+            first_bytes = f.read(10)
+            print(f"First bytes of the file: {first_bytes}")
+
+        # If the file starts with '<', it's an HTML error page
+        if first_bytes.startswith(b"<"):
+            raise ValueError("Downloaded file is an HTML error page instead of a model. Check the Google Drive link.")
 
     except Exception as e:
         print(f"Error downloading model: {e}")
         raise
+
 
 
 @st.cache_resource
