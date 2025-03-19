@@ -5,6 +5,7 @@ from PIL import Image
 import pandas as pd
 import urllib.request
 import os
+import requests
 
 # Google Drive File ID
 GDRIVE_FILE_ID = "1DvfGR9pJqobmIolgTYWk7EXS3K3Z7qIS"
@@ -13,19 +14,40 @@ GDRIVE_FILE_ID = "1DvfGR9pJqobmIolgTYWk7EXS3K3Z7qIS"
 MODEL_URL = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
 
 # Function to check if the file is correctly downloaded
+import requests
+
 def download_model():
     try:
         print("Downloading model...")
-        urllib.request.urlretrieve(MODEL_URL, "voting_model.pkl")
+        session = requests.Session()
+        response = session.get(MODEL_URL, stream=True)
+        token = None
+
+        # Handle Google Drive virus scan confirmation
+        for key, value in response.cookies.items():
+            if key.startswith("download_warning"):
+                token = value
+                break
+
+        if token:
+            MODEL_URL_with_token = f"{MODEL_URL}&confirm={token}"
+            response = session.get(MODEL_URL_with_token, stream=True)
+
+        with open("voting_model.pkl", "wb") as f:
+            for chunk in response.iter_content(1024 * 1024):  # 1MB chunks
+                if chunk:
+                    f.write(chunk)
+
         print("Download complete.")
         
-        # Check if the downloaded file is actually a pickle file
-        if os.path.getsize("voting_model.pkl") < 1000:  # If the file is too small, it's likely an error page
+        # Verify the file size
+        if os.path.getsize("voting_model.pkl") < 1000:
             raise ValueError("Downloaded file is not a valid model. Check the Google Drive link.")
 
     except Exception as e:
         print(f"Error downloading model: {e}")
         raise
+
 
 @st.cache_resource
 def load_model():
