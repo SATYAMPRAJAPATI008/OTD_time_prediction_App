@@ -3,13 +3,26 @@ import pickle
 import numpy as np
 from PIL import Image
 import pandas as pd
+import urllib.request
+
+
+# Google Drive file ID (Replace with your actual file ID)
+GDRIVE_FILE_ID = "1DvfGR9pJqobmIolgTYWk7EXS3K3Z7qIS"
+
+# Construct the direct download URL
+MODEL_URL = f"https://drive.google.com/uc?export=download&id={GDRIVE_FILE_ID}"
+
+@st.cache_resource
+def load_model():
+    urllib.request.urlretrieve(MODEL_URL, "voting_model.pkl")
+    return pickle.load(open("voting_model.pkl", "rb"))
+
+# Load the model
+voting_model = load_model()
 
 # Set the Streamlit page configuration
 st.set_page_config(page_title="OTD Time Forecasting", page_icon=":truck:", layout="wide")
 
-# Load the trained ensemble model from the saved pickle file
-modelfile = "voting_model.pkl"
-voting_model = pickle.load(open(modelfile, "rb"))
 
 # Function for predicting wait time
 def wait_time_predictor(purchase_dow, purchase_month, year, product_size_cm3, product_weight_g,
