@@ -16,6 +16,7 @@ def predict_delivery_time(features):
     features_scaled = scaler.transform([features])
     return round(voting_model.predict(features_scaled)[0])
 
+
 # Streamlit UI
 st.title("Order Delivery Time Estimator")
 
@@ -29,7 +30,6 @@ geolocation_state_seller = st.number_input("Seller Location Code", min_value=1, 
 distance = st.number_input("Distance (km)", min_value=1.0, value=475.35)
 
 if st.button("Predict Delivery Time"):
-    features = [purchase_dow, purchase_month, year, product_size_cm3, product_weight_g,
-                geolocation_state_customer, geolocation_state_seller, distance]
+    features = [purchase_dow, purchase_month, year, distance]  # Match the trained model
     prediction = predict_delivery_time(features)
     st.success(f"Estimated Delivery Time: {prediction} days")
