@@ -25,6 +25,6 @@ year = st.number_input("Year", min_value=2000, max_value=2030, value=2023)
 distance = st.number_input("Distance (km)", min_value=1.0, value=475.35)
 
 if st.button("Predict Delivery Time"):
-    features = [purchase_dow, purchase_month, year, distance]  # Corrected list of features
+    features = [purchase_dow, purchase_month, year, distance]
     prediction = predict_delivery_time(features)
     st.success(f"Estimated Delivery Time: {prediction} days")
