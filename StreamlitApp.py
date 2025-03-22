@@ -17,7 +17,7 @@ def predict_delivery_time(features):
     return round(voting_model.predict(features_scaled)[0])
 
 # Streamlit UI
-st.title("Order Delivery Time Estimator")
+st.title("Order Time Prediction")
 
 purchase_dow = st.slider("Day of the Week", 0, 6, 3)
 purchase_month = st.slider("Month", 1, 12, 1)
